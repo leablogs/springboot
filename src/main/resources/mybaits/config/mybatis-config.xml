@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration SYSTEM "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<plugins>
+		<plugin interceptor="com.leablogs.plugin.Plugin">
+			<property name="id" value="3" />
+			<property name="key1" value="value1" />
+			<property name="key2" value="value2" />
+		</plugin>
+	</plugins>
+</configuration>
