@@ -5,4 +5,7 @@
 		select *
 		from t_user where id=#{id}
 	</select>
+	<insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user(username,note) value(#{username},#{note})
+	</insert>
 </mapper>
