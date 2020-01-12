@@ -1,5 +1,7 @@
 package com.leablogs;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.lang.annotation.Aspect;
 import org.mybatis.spring.annotation.MapperScan;
@@ -10,6 +12,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties.Packages;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +50,23 @@ public class SpringbootApplication {
 //		bean.setSqlSessionFactory(sqlSessionFactory);
 //		return bean;
 //	}
+	@Autowired
+	private RedisTemplate redisTemplate = null;
+	@Autowired
+	private RedisConnectionFactory RedisConnectionFactory = null;
+
+	@PostConstruct
+	public void init() {
+		initRedisTemplate();
+	}
+
+	// redis 序列号
+	private void initRedisTemplate() {
+		RedisSerializer redisSerializer = redisTemplate.getStringSerializer();
+		redisTemplate.setKeySerializer(redisSerializer);
+		redisTemplate.setHashKeySerializer(redisSerializer);
+		redisTemplate.setHashValueSerializer(redisSerializer);
+	}
 
 	@Bean(name = "userAspect")
 	protected UserAspect initAspect() {
