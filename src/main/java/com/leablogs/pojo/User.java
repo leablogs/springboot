@@ -1,10 +1,15 @@
 package com.leablogs.pojo;
 
+import org.apache.ibatis.type.Alias;
+
+import com.leablogs.enumeration.SexEnum;
+
+@Alias("user")
 public class User {
 	private int id;
 	private String username;
 	private String note;
-	private int sex;
+	private SexEnum sex;
 
 	public int getId() {
 		return id;
@@ -30,11 +35,11 @@ public class User {
 		this.note = note;
 	}
 
-	public int getSex() {
+	public SexEnum getSex() {
 		return sex;
 	}
 
-	public void setSex(int sex) {
+	public void setSex(SexEnum sex) {
 		this.sex = sex;
 	}
 

@@ -16,8 +16,8 @@ public class UserController {
 
 	@RequestMapping("/getUser")
 	@ResponseBody
-	public User getUser(Integer id, String name) {
-		User user = userService.getUser(id, name);
+	public User getUser(Integer id) {
+		User user = userService.getUser(id);
 		return user;
 	}
 
