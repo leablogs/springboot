@@ -2,6 +2,7 @@ package com.leablogs;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.lang.annotation.Aspect;
+import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.mapper.MapperFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import com.leablogs.aop.UserAspect;
 import com.leablogs.dao.UserMapper;
 
 @SpringBootApplication
-
+@MapperScan(basePackages = "com.leablogs.*", annotationClass = Repository.class, sqlSessionFactoryRef = "sqlSessionFactory", sqlSessionTemplateRef = "sqlSessionTemplate"
+//		,markerInterface = "",basePackageClasses = "",factoryBean = "",nameGenerator = "",value = ""
+)
 public class SpringbootApplication {
 //	@Bean
 //	public MapperScannerConfigurer mapperScannerConfigurer() {
@@ -32,16 +35,16 @@ public class SpringbootApplication {
 //		return mapperScannerConfigurer;
 //	}
 
-	@Autowired
-	SqlSessionFactory sqlSessionFactory = null;
-
-	@Bean
-	public MapperFactoryBean<UserMapper> initUserMapper() {
-		MapperFactoryBean<UserMapper> bean = new MapperFactoryBean<UserMapper>();
-		bean.setMapperInterface(UserMapper.class);
-		bean.setSqlSessionFactory(sqlSessionFactory);
-		return bean;
-	}
+//	@Autowired
+//	SqlSessionFactory sqlSessionFactory = null;
+//
+//	@Bean
+//	public MapperFactoryBean<UserMapper> initUserMapper() {
+//		MapperFactoryBean<UserMapper> bean = new MapperFactoryBean<UserMapper>();
+//		bean.setMapperInterface(UserMapper.class);
+//		bean.setSqlSessionFactory(sqlSessionFactory);
+//		return bean;
+//	}
 
 	@Bean(name = "userAspect")
 	protected UserAspect initAspect() {
