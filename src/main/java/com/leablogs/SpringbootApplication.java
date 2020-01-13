@@ -1,5 +1,9 @@
 package com.leablogs;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.lang.annotation.Aspect;
 import org.mybatis.spring.annotation.MapperScan;
@@ -8,8 +12,17 @@ import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQProperties.Packages;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.MessageListener;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.Topic;
+
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +33,7 @@ import com.leablogs.dao.UserMapper;
 @MapperScan(basePackages = "com.leablogs.*", annotationClass = Repository.class, sqlSessionFactoryRef = "sqlSessionFactory", sqlSessionTemplateRef = "sqlSessionTemplate"
 //		,markerInterface = "",basePackageClasses = "",factoryBean = "",nameGenerator = "",value = ""
 )
+@EnableCaching
 public class SpringbootApplication {
 //	@Bean
 //	public MapperScannerConfigurer mapperScannerConfigurer() {
@@ -45,6 +59,49 @@ public class SpringbootApplication {
 //		bean.setSqlSessionFactory(sqlSessionFactory);
 //		return bean;
 //	}
+	@Autowired
+	private RedisTemplate redisTemplate = null;
+	@Autowired
+	private RedisConnectionFactory RedisConnectionFactory = null;
+
+	@PostConstruct
+	public void init() {
+		initRedisTemplate();
+	}
+
+	// redis 序列号
+	private void initRedisTemplate() {
+		RedisSerializer redisSerializer = redisTemplate.getStringSerializer();
+		redisTemplate.setKeySerializer(redisSerializer);
+		redisTemplate.setHashKeySerializer(redisSerializer);
+		redisTemplate.setHashValueSerializer(redisSerializer);
+	}
+
+	// Redis消息监听器
+//	@Autowired
+	private MessageListener redisMsgListener = null;
+
+	private ThreadPoolTaskScheduler taskScheduler = null;
+
+//	@Bean
+	public ThreadPoolTaskScheduler initTaskScheduler() {
+		if (taskScheduler != null) {
+			return taskScheduler;
+		}
+		taskScheduler = new ThreadPoolTaskScheduler();
+		taskScheduler.setPoolSize(20);
+		return taskScheduler;
+	}
+
+//	@Bean
+	public RedisMessageListenerContainer initContainer() {
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(RedisConnectionFactory);
+		container.setTaskExecutor(taskScheduler);
+		Topic topic = new ChannelTopic("topic1");
+		container.addMessageListener(redisMsgListener, topic);
+		return container;
+	}
 
 	@Bean(name = "userAspect")
 	protected UserAspect initAspect() {
