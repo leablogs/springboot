@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 public class UserAspect {
 	@Pointcut("execution(* com.leablogs.service.impl.UserServiceImpl.*(..))")
 	public void pointcut() {
-
 	}
 
 	@Before("pointcut()")
