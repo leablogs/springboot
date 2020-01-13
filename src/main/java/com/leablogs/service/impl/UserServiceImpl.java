@@ -3,8 +3,6 @@ package com.leablogs.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,9 +18,7 @@ public class UserServiceImpl implements UserService {
 	private UserMapper userMapper = null;
 
 	@Override
-//	@Transactional(isolation = Isolation.READ_COMMITTED, timeout = 1)
-	@Transactional
-	@Cacheable(value = "redisCacheManager", key = "'redis_user_'+#id")
+	@Transactional(isolation = Isolation.READ_COMMITTED, timeout = 1)
 	public User getUser(int id) {
 
 		return userMapper.getUser(id);
@@ -35,9 +31,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-//	@Transactional(isolation = Isolation.READ_COMMITTED, timeout = 1, propagation = Propagation.NESTED)
-	@Transactional
-	@CachePut(value = "redisCacheManager", condition = "#result != 'null'", key = "'redis_user_'+#result.id")
+	@Transactional(isolation = Isolation.READ_COMMITTED, timeout = 1, propagation = Propagation.NESTED)
 	public int insertUser(User user) {
 
 		return userMapper.insertUser(user);
