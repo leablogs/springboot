@@ -1,20 +1,31 @@
 package com.leablogs.configure;
 
+import java.time.Duration;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
 
 import redis.clients.jedis.JedisPoolConfig;
 
 //@Configurable
 public class RedisConfig {
+//	@Autowired
 	private RedisConnectionFactory redisConnectionFactory = null;
+	@Autowired
+	private RedisConnectionFactory connectionFactory = null;
 
-	@Bean(name = "RedisConnectionFactory")
+//	@Bean(name = "RedisConnectionFactory")
 	public RedisConnectionFactory initConnectionFactory() {
 		if (this.redisConnectionFactory != null) {
 			return this.redisConnectionFactory;
@@ -43,5 +54,16 @@ public class RedisConfig {
 		redisTemplate.setHashValueSerializer(StringRedisSerializer);
 		redisTemplate.setConnectionFactory(initConnectionFactory());
 		return redisTemplate;
+	}
+
+	@Bean(name = "redisCacheManager")
+	public RedisCacheManager initRedisCache() {
+		RedisCacheWriter writer = RedisCacheWriter.lockingRedisCacheWriter(connectionFactory);
+		RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
+		config = config.serializeValuesWith(SerializationPair.fromSerializer(new JdkSerializationRedisSerializer()));
+		config = config.disableKeyPrefix();
+		config = config.entryTtl(Duration.ofMinutes(10));
+		RedisCacheManager redisCacheConfiguration = new RedisCacheManager(writer, config);
+		return redisCacheConfiguration;
 	}
 }

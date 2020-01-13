@@ -1,5 +1,6 @@
 package com.leablogs.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -110,19 +113,56 @@ public class RedisController {
 	public Map redisPipeline() {
 		Long start = System.currentTimeMillis();
 		List list = (List) redisTemplate.executePipelined((RedisOperations operations) -> {
-			for (int i = 1; i <= 1000000000; i++) {
+			for (int i = 1; i <= 10000000; i++) {
 				operations.opsForValue().set("pipeline_1" + i, "value_" + i);
 				String value = (String) operations.opsForValue().get("pipeline_" + i);
-				if (i == 100000) {
+				if (i == 10000000) {
 					System.out.println("命令指示进入队列，所以值为空【" + value + "】");
 				}
 			}
 			return null;
 		});
 		Long end = System.currentTimeMillis();
-		System.out.println("耗时:" + (end - start) + "毫秒");
+		System.out.println("耗时:" + ((end - start) / 1000) + "秒");
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("success", true);
+		return map;
+	}
+
+	@RequestMapping("/redisLua")
+	@ResponseBody
+	public Map<String, Object> redisLua() {
+		DefaultRedisScript<String> rs = new DefaultRedisScript<String>();
+		rs.setScriptText("return 'Hello Redis'");
+		rs.setResultType(String.class);
+		RedisSerializer<String> stringRedisSerializer = redisTemplate.getStringSerializer();
+		String str = (String) redisTemplate.execute(rs, stringRedisSerializer, stringRedisSerializer, null);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("success", true);
+		map.put("str", str);
+		return map;
+	}
+
+	@RequestMapping("/redisLua1")
+	@ResponseBody
+	public Map<String, Object> redisLua1(String key1, String key2, String value1, String value2) {
+		String lua = "redis.call('set',KEYS[1],ARGV[1]) \nredis.call('set',KEYS[2],ARGV[2]) \n"
+				+ "local str1 = redis.call('get',KEYS[1]) \nlocal str2 = redis.call('get',KEYS[2]) \n"
+				+ "if str1 == str2 then return 1 \nend \nreturn 0 \n";
+		System.out.println(lua);
+		DefaultRedisScript<Long> rs = new DefaultRedisScript<Long>();
+		rs.setScriptText(lua);
+		rs.setResultType(Long.class);
+		RedisSerializer<String> stringSerializer = redisTemplate.getStringSerializer();
+		List<String> keyList = new ArrayList<String>();
+		keyList.add(key1);
+		keyList.add(key2);
+		Long result = (Long) redisTemplate.execute(rs, stringSerializer, stringSerializer, keyList, value1, value2);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("success", true);
+		map.put("result", result);
 		return map;
 	}
 
