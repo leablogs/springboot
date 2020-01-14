@@ -1,7 +1,5 @@
 package com.leablogs;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-
 import javax.annotation.PostConstruct;
 
 import org.apache.ibatis.session.SqlSessionFactory;
