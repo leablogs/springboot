@@ -1,11 +1,14 @@
 package com.leablogs.pojo;
 
+import java.io.Serializable;
+
 import org.apache.ibatis.type.Alias;
 
 import com.leablogs.enumeration.SexEnum;
 
 @Alias("user")
-public class User {
+public class User implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private int id;
 	private String username;
 	private String note;
