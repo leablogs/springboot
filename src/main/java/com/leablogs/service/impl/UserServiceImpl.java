@@ -29,9 +29,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<User> getUsers() {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional
+	@CachePut(value = "redisCacheManager", condition = "#result!='null'", key = "'redis_users_'+#userName")
+	public List<User> getUsers(String userName) {
+		return userMapper.getUsers();
 	}
 
 	@Override
@@ -41,6 +42,11 @@ public class UserServiceImpl implements UserService {
 	public int insertUser(User user) {
 
 		return userMapper.insertUser(user);
+	}
+
+	@Override
+	public List<User> getAll() {
+		return userMapper.getAll();
 	}
 
 }

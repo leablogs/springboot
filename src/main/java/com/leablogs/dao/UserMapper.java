@@ -10,5 +10,9 @@ import com.leablogs.pojo.User;
 public interface UserMapper {
 	public User getUser(int id);
 
+	public List<User> getUsers();
+
 	public int insertUser(User user);
+
+	public List<User> getAll();
 }
