@@ -23,16 +23,20 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.leablogs.aop.UserAspect;
 import com.leablogs.dao.UserMapper;
+import com.leablogs.interceptor.Interceptor;
 
 @SpringBootApplication
 @MapperScan(basePackages = "com.leablogs.*", annotationClass = Repository.class, sqlSessionFactoryRef = "sqlSessionFactory", sqlSessionTemplateRef = "sqlSessionTemplate"
 //		,markerInterface = "",basePackageClasses = "",factoryBean = "",nameGenerator = "",value = ""
 )
 @EnableCaching
-public class SpringbootApplication {
+public class SpringbootApplication implements WebMvcConfigurer {
 //	@Bean
 //	public MapperScannerConfigurer mapperScannerConfigurer() {
 //		// 定义扫描器实例
@@ -104,6 +108,13 @@ public class SpringbootApplication {
 	@Bean(name = "userAspect")
 	protected UserAspect initAspect() {
 		return new UserAspect();
+	}
+
+	// 拦截器 从写 addInterceptors方法
+	public void addInterceptors(InterceptorRegistry interceptorRegistry) {
+		InterceptorRegistration is = interceptorRegistry.addInterceptor(new Interceptor());
+		is.addPathPatterns("/interceptor/*");
+
 	}
 
 	public static void main(String[] args) {

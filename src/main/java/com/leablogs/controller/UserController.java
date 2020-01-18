@@ -54,6 +54,22 @@ public class UserController {
 		return user;
 	}
 
+	@RequestMapping("/getUsers")
+	@ResponseBody
+	public List<User> getUsers() {
+		List<User> users = userService.getUsers("wang");
+		System.out.println(users.toString());
+		return users;
+	}
+
+	@RequestMapping("/getAll")
+	@ResponseBody
+	public List<User> getAll() {
+		List<User> users = userService.getAll();
+		System.out.println(users.toString());
+		return users;
+	}
+
 	@RequestMapping("/insertUser")
 	@ResponseBody
 //	public Map insertUser(String userName, String note) {
